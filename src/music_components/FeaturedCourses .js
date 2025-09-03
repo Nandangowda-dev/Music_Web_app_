@@ -47,12 +47,19 @@ const courses = [
 ];
 
 const FeaturedCourses = () => {
-  const [selectedCourse, setSelectedCourse] = useState(null); // Track modal
-    const navigate = useNavigate();
+  const [selectedCourse, setSelectedCourse] = useState(null);
+  const navigate = useNavigate();
 
-    const handleEnroll = () => {
-    navigate("/register");
+  const isLoggedIn = localStorage.getItem("userToken"); 
+
+  const handleEnroll = () => {
+    if (isLoggedIn) {
+      navigate("/payment", { state: { course: selectedCourse } });
+    } else {
+      navigate("/register");
+    }
   };
+
   return (
     <section className="py-12 px-4 bg-gray-50 dark:bg-gray-900">
       <h2 className="text-2xl md:text-3xl font-bold text-center text-gray-800 dark:text-white mb-8">
@@ -78,6 +85,7 @@ const FeaturedCourses = () => {
               <img
                 src={course.image}
                 alt={course.title}
+                loading="lazy"
                 className="w-full h-32 object-cover"
               />
               <div className="p-3">
@@ -88,19 +96,26 @@ const FeaturedCourses = () => {
                   {course.category}
                 </p>
                 <button
-                  onClick={() => setSelectedCourse(course)}
-                  className="w-full bg-indigo-600 text-white py-1.5 px-3 text-sm rounded-lg hover:bg-indigo-700"
-                >
-                  Enroll Now
-                </button>
+  onClick={() => {
+    if (isLoggedIn) {
+      // ✅ pass course data to payment page
+      navigate("/payment", { state: { course } });
+    } else {
+      setSelectedCourse(course); // show modal if not logged in
+    }
+  }}
+  className="bg-blue-600 text-white px-4 py-2 rounded-lg hover:bg-blue-700"
+>
+  Enroll Now
+</button>
               </div>
             </div>
           </SwiperSlide>
         ))}
       </Swiper>
 
-      {/* Modal */}
-      {selectedCourse && (
+    
+      {!isLoggedIn && selectedCourse && (
         <div className="fixed inset-0 flex items-center justify-center bg-black bg-opacity-50 z-50">
           <div className="bg-white dark:bg-gray-800 rounded-xl shadow-lg max-w-md w-full p-6">
             <h3 className="text-2xl font-bold text-gray-800 dark:text-white mb-2">
@@ -109,7 +124,10 @@ const FeaturedCourses = () => {
             <p className="text-gray-600 dark:text-gray-300 mb-4">
               {selectedCourse.description}
             </p>
-            <button className="w-full bg-green-600 hover:bg-green-700 text-white py-2 px-4 rounded-lg transition mb-2" onClick={()=>handleEnroll()}>
+            <button
+              className="w-full bg-green-600 hover:bg-green-700 text-white py-2 px-4 rounded-lg transition mb-2"
+              onClick={handleEnroll}
+            >
               Proceed to Register
             </button>
             <button

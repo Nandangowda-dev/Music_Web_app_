@@ -1,4 +1,6 @@
-import React, { useState, useEffect } from "react";
+import React, { useState } from "react";
+import { useTheme } from "../Context/ThemeContext";
+import { Link } from "react-router-dom";
 
 export default function Nav_bar({
   logo = "MyMusic",
@@ -6,16 +8,8 @@ export default function Nav_bar({
 }) {
   const [open, setOpen] = useState(false);
   const [active, setActive] = useState("/");
-  const [dark, setDark] = useState(false);
   const [accordion, setAccordion] = useState(null); // track open accordion
-
-  useEffect(() => {
-    if (dark) {
-      document.documentElement.classList.add("dark");
-    } else {
-      document.documentElement.classList.remove("dark");
-    }
-  }, [dark]);
+  const { theme, toggleTheme } = useTheme(); // ✅ use context only
 
   const navItems = [
     {
@@ -79,10 +73,7 @@ export default function Nav_bar({
 
   return (
     <header className="bg-white dark:bg-slate-900 shadow-sm sticky top-0 z-50">
-      <nav
-        className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8"
-        aria-label="Top"
-      >
+      <nav className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8" aria-label="Top">
         <div className="w-full py-4 flex items-center justify-between">
           {/* Logo */}
           <div className="flex items-center gap-3">
@@ -143,7 +134,7 @@ export default function Nav_bar({
               ))}
             </ul>
 
-            {/* Login / Register button */}
+            {/* Login / Register */}
             <div>
               <a
                 href="/login"
@@ -159,20 +150,20 @@ export default function Nav_bar({
 
             {/* Theme toggle */}
             <button
-              onClick={() => setDark(!dark)}
+              onClick={toggleTheme}
               className="ml-3 p-2 rounded-md text-slate-600 dark:text-slate-300 hover:bg-slate-100 dark:hover:bg-slate-700"
             >
-              {dark ? "🌙" : "☀️"}
+              {theme === "dark" ? "🌙" : "☀️"}
             </button>
           </div>
 
           {/* Mobile hamburger */}
           <div className="md:hidden flex items-center gap-2">
             <button
-              onClick={() => setDark(!dark)}
+              onClick={toggleTheme}
               className="p-2 rounded-md text-slate-600 dark:text-slate-300 hover:bg-slate-100 dark:hover:bg-slate-700"
             >
-              {dark ? "🌙" : "☀️"}
+              {theme === "dark" ? "🌙" : "☀️"}
             </button>
             <button
               onClick={() => setOpen((v) => !v)}
@@ -189,36 +180,21 @@ export default function Nav_bar({
                 aria-hidden="true"
               >
                 {open ? (
-                  <path
-                    strokeLinecap="round"
-                    strokeLinejoin="round"
-                    strokeWidth={2}
-                    d="M6 18L18 6M6 6l12 12"
-                  />
+                  <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M6 18L18 6M6 6l12 12" />
                 ) : (
-                  <path
-                    strokeLinecap="round"
-                    strokeLinejoin="round"
-                    strokeWidth={2}
-                    d="M4 6h16M4 12h16M4 18h16"
-                  />
+                  <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M4 6h16M4 12h16M4 18h16" />
                 )}
               </svg>
             </button>
           </div>
         </div>
 
-        {/* Mobile menu with accordion */}
-        <div
-          id="mobile-menu"
-          className={`md:hidden ${open ? "block" : "hidden"} pb-4`}
-        >
+        {/* Mobile menu */}
+        <div id="mobile-menu" className={`md:hidden ${open ? "block" : "hidden"} pb-4`}>
           {navItems.map((it, idx) => (
             <div key={it.href} className="border-b border-slate-200 dark:border-slate-700">
               <button
-                onClick={() =>
-                  setAccordion(accordion === idx ? null : idx)
-                }
+                onClick={() => setAccordion(accordion === idx ? null : idx)}
                 className={`w-full flex justify-between items-center px-4 py-2 text-base font-medium rounded-md transition ${
                   active === it.href
                     ? "bg-indigo-50 dark:bg-slate-700 text-indigo-600 dark:text-indigo-400"
@@ -245,8 +221,8 @@ export default function Nav_bar({
             </div>
           ))}
 
-          <a
-            href="/login"
+          <Link
+            to={'/login'}
             onClick={(e) => {
               e.preventDefault();
               handleNavClick("/login");
@@ -254,7 +230,7 @@ export default function Nav_bar({
             className="block mx-4 mt-4 text-center px-4 py-2 rounded-md bg-indigo-600 text-white font-medium"
           >
             Login / Register
-          </a>
+          </Link>
         </div>
       </nav>
     </header>
